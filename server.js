@@ -37,8 +37,26 @@ const job = new cron.CronJob('*/10 * * * * *', async ()=>{
     let allAnimals = await db.collection('animals').find().toArray();
     
     
-    let names = allAnimals.map(object => object.name);
-    console.log(names);
+    let ip = allAnimals.map(object => object.ip);
+    console.log(ip);
+    let maxHeight = allAnimals.map(object => object.maxHeight);
+    let gauge = allAnimals.map(object => object.gauge);
+    //loop through all the ip addresses
+    for (let i = 0; i < ip.length; i++){
+        //call scraper function
+        console.log(ip[i])
+        let height = await scrape(ip[i]);
+        let net = maxHeight[i] - height;
+        console.log(maxHeight[i]);
+        console.log(gauge[i])
+        let stock = net / gauge[i];
+        console.log(stock);
+        //update the db with the new height value
+        await db.collection('animals').updateOne({_id: ObjectId(allAnimals[i]._id)}, {$set: { stock: stock}});
+    }
+    let stock = allAnimals.map(object => object.stock);
+    console.log(stock);
+    
         //for each ip address call scraper and get heigh value
         //for that item animal place the new height value into the db 
         //move the old one to history
@@ -67,7 +85,7 @@ app.get("/", async (req, res) => {
     const  generatedHTML = ReactDOMServer.renderToString(
         <div className='container'>
             <div className='animal-grid mb-3'>
-                {allAnimals.map(animal => <AnimalCard key = {animal._id} name={animal.name} species={animal.species} photo={animal.photo} id={animal._id} bay={animal.bay} readOnly={true}/>
+                {allAnimals.map(animal => <AnimalCard key = {animal._id} name={animal.name} ip={animal.ip} photo={animal.photo} id={animal._id} bay={animal.bay} maxHeight={animal.maxHeight} gauge={animal.gauge} stock={animal.stock} readOnly={true}/>
                 )}
                 
             </div>
@@ -154,12 +172,20 @@ app.post("/update-animal", upload.single("photo"), ourCleanup, async (req,res)=>
 function ourCleanup(req,res,next){
     //make sure there are no objects
     if(typeof req.body.name != "string") req.body.name = "";
-    if(typeof req.body.species != "string") req.body.species = "";
+    if(typeof req.body.ip != "string") req.body.ip = "";
     if(typeof req.body._id != "string") req.body._id = "";
+    if(typeof req.body.bay != "string") req.body.bay = "";
+    if(typeof req.body.gauge != "string") req.body.gauge = "";
+    if(typeof req.body.maxHeight != "string") req.body.maxHeight = "";
+
     //add new object to request
     req.cleanData = {
         name: sanitizeHTML(req.body.name.trim(), {allowedTags: [], allowedAttributes: {}}),
-        species: sanitizeHTML(req.body.species.trim(), {allowedTags: [], allowedAttributes: {}}),
+        ip: sanitizeHTML(req.body.ip.trim(), {allowedTags: [], allowedAttributes: {}}),
+        bay: sanitizeHTML(req.body.bay.trim(), {allowedTags: [], allowedAttributes: {}}),
+        maxHeight: sanitizeHTML(req.body.maxHeight.trim(), {allowedTags: [], allowedAttributes: {}}),
+        gauge: sanitizeHTML(req.body.gauge.trim(), {allowedTags: [], allowedAttributes: {}}),
+
     }
 
     next();
