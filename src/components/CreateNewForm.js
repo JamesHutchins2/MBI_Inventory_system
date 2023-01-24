@@ -4,6 +4,7 @@ import React, { useState, useRef } from "react"
 function CreateNewForm(props) {
   const [name, setName] = useState("")
   const [species, setSpecies] = useState("")
+  const [bay, setBay] = useState("")
   const [file, setFile] = useState("")
   const CreatePhotoField = useRef()
 
@@ -13,8 +14,10 @@ function CreateNewForm(props) {
     data.append("photo", file)
     data.append("name", name)
     data.append("species", species)
+    data.append("bay", bay)
     setName("")
     setSpecies("")
+    setBay("")
     setFile("")
     CreatePhotoField.current.value = ""
     const newPhoto = await Axios.post("/create-animal", data, { headers: { "Content-Type": "multipart/form-data" } })
@@ -32,8 +35,11 @@ function CreateNewForm(props) {
       <div className="mb-2">
         <input onChange={e => setSpecies(e.target.value)} value={species} type="text" className="form-control" placeholder="Species" />
       </div>
+      <div className="mb-2">
+        <input onChange={e => setBay(e.target.value)} value={bay} type="text" className="form-control" placeholder="Bay Number" />
+      </div>
 
-      <button className="btn btn-success">Create New Animal!</button>
+      <button  className="btn btn-success">Create New Animal!</button>
     </form>
   )
 }

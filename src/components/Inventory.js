@@ -12,7 +12,7 @@ function Inventory() {
         async function update(){
             //update each item in inventory
             //get the inventory
-            const response = await Axios.get('/api/inventory')
+            let response = await Axios.get('/api/inventory')
             //loop through each item in inventory
             for(let i = 0; i < response.data.length; i++){
                 let item = response.data[i]
@@ -24,14 +24,17 @@ function Inventory() {
                 let height = await Axios.get('http://' + ip )
 
                 item.stock = (height.data / gauge)
-
+                
         }
-        async function go(){
-          const response = await Axios.get('/api/inventory')  
-          setInventorys(response.data)
-        }
-        go()
-    },[])
+        setInventorys(response.data)
+        
+        
+          
+        
+    }
+    update()
+}
+    ,[]);
   return (
     <div className='container'>
         <h1>Inventory Information</h1>

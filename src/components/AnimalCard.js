@@ -6,6 +6,7 @@ function AnimalCard(props) {
   const [draftName, setDraftName] = useState("")
   const [file, setFile] = useState()
   const [draftSpecies, setDraftSpecies] = useState("")
+  const [draftBay, setDraftBay] = useState("")
 
   async function submitHandler(e) {
     e.preventDefault()
@@ -25,6 +26,7 @@ function AnimalCard(props) {
     data.append("_id", props.id)
     data.append("name", draftName)
     data.append("species", draftSpecies)
+    data.append("bay", draftBay)
     const newPhoto = await Axios.post("/update-animal", data, { headers: { "Content-Type": "multipart/form-data" } })
     if (newPhoto.data) {
       props.setAnimals(prev => {
@@ -48,13 +50,14 @@ function AnimalCard(props) {
             </div>
           </div>
         )}
-        <img src={props.photo ? `/uploaded-photos/${props.photo}` : "/fallback.png"} className="card-img-top" alt={`${props.species} named ${props.name}`} />
+        <img src={props.photo ? `/uploaded-photos/${props.photo}` : "/fallback.png"} className="card-img-top" alt={`${props.species} named ${props.name} bay number ${props.bay}`} />
       </div>
       <div className="card-body">
         {!isEditing && (
           <>
             <h4>{props.name}</h4>
             <p className="text-muted small">{props.species}</p>
+            <p className="text-muted small">Bay: {props.bay}</p>
             {!props.readOnly && (
               <>
                 <button
